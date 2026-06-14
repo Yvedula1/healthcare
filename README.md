@@ -126,10 +126,10 @@ The DB password is read from the `DB_PASSWORD` environment variable (never hardc
 cd backend
 
 # Windows (PowerShell)
-$env:DB_PASSWORD="postgres"; mvn spring-boot:run
+$env:DB_PASSWORD="<your-postgres-password>"; mvn spring-boot:run
 
 # macOS / Linux
-DB_PASSWORD=postgres mvn spring-boot:run
+DB_PASSWORD=<your-postgres-password> mvn spring-boot:run
 ```
 
 Backend runs at **http://localhost:8080**.
@@ -200,10 +200,10 @@ Run against the dedicated `caretrack_test` PostgreSQL database (schema is create
 cd backend
 
 # Windows (PowerShell)
-$env:DB_PASSWORD="postgres"; mvn test
+$env:DB_PASSWORD="<your-postgres-password>"; mvn test
 
 # macOS / Linux
-DB_PASSWORD=postgres mvn test
+DB_PASSWORD=<your-postgres-password> mvn test
 ```
 
 Covers context load + DB connectivity, full patient CRUD, validation (400),

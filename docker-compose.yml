@@ -1,5 +1,7 @@
 # Local end-to-end run of the containerized app (backend + frontend + PostgreSQL).
-# Usage:  DB_PASSWORD=postgres docker compose up --build
+# Set DB_PASSWORD in your environment first (do not hardcode it), e.g.:
+#   export DB_PASSWORD=<your-local-password>   # PowerShell: $env:DB_PASSWORD="<...>"
+#   docker compose up --build
 #   Frontend -> http://localhost:8081
 #   Backend  -> http://localhost:8080
 # The DB container publishes on host port 5433 to avoid clashing with a local
@@ -11,7 +13,7 @@ services:
     environment:
       POSTGRES_DB: caretrack
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in the environment}
     ports:
       - "5433:5432"
     volumes:
@@ -22,7 +24,7 @@ services:
     environment:
       DB_URL: jdbc:postgresql://db:5432/caretrack
       DB_USERNAME: postgres
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in the environment}
       FRONTEND_ORIGIN: http://localhost:8081
     ports:
       - "8080:8080"
