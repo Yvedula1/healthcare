@@ -1,0 +1,66 @@
+# Render Blueprint for CareTrack (free tier).
+# Deploy: Render Dashboard -> New -> Blueprint -> connect this repo.
+# Creates: a PostgreSQL database, a Dockerized Spring Boot backend, and a static React frontend.
+#
+# Notes:
+#  - Free web services sleep after ~15 min of inactivity (cold start on next request).
+#  - Free PostgreSQL is removed after 30 days (recreate, or switch to a persistent provider).
+
+databases:
+  - name: caretrack-db
+    databaseName: caretrack
+    plan: free
+
+services:
+  # --- Backend: Spring Boot (Docker) ---
+  - type: web
+    name: caretrack-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/dashboard
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: caretrack-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: caretrack-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: caretrack-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: caretrack-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: caretrack-db
+          property: password
+      # Allow all origins for the demo; can be narrowed to the frontend URL later.
+      - key: FRONTEND_ORIGIN
+        value: "*"
+
+  # --- Frontend: React/Vite static site ---
+  - type: web
+    name: caretrack-frontend
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    rootDir: frontend
+    envVars:
+      # Backend host (no scheme); api.js prepends https://. Auto-resolves the real URL.
+      - key: VITE_API_URL
+        fromService:
+          name: caretrack-backend
+          type: web
+          property: host
+    routes:
+      # SPA fallback so deep links like /patients/1 work on refresh.
+      - type: rewrite
+        source: /*
+        destination: /index.html
