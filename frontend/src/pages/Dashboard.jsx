@@ -70,47 +70,38 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="bg-brand-700 text-white shadow">
-        <div className="mx-auto max-w-6xl px-4 py-5">
-          <h1 className="text-xl font-bold">CareTrack Healthcare Portal</h1>
-          <p className="text-sm text-brand-100">Patient management &amp; appointment tracking</p>
+    <>
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
         </div>
-      </header>
+      )}
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+      <DashboardCards summary={summary} />
+
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-700">Patients</h2>
+          <button
+            onClick={openCreate}
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
+          >
+            + Add New Patient
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="rounded-xl bg-white p-10 text-center text-slate-400 shadow-sm">
+            Loading…
           </div>
+        ) : (
+          <PatientTable patients={patients} onEdit={openEdit} onDelete={handleDelete} />
         )}
-
-        <DashboardCards summary={summary} />
-
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-700">Patients</h2>
-            <button
-              onClick={openCreate}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
-            >
-              + Add New Patient
-            </button>
-          </div>
-
-          {loading ? (
-            <div className="rounded-xl bg-white p-10 text-center text-slate-400 shadow-sm">
-              Loading…
-            </div>
-          ) : (
-            <PatientTable patients={patients} onEdit={openEdit} onDelete={handleDelete} />
-          )}
-        </section>
-      </main>
+      </section>
 
       {formOpen && (
         <PatientForm patient={editingPatient} onClose={closeForm} onSaved={handleSaved} />
       )}
-    </div>
+    </>
   )
 }

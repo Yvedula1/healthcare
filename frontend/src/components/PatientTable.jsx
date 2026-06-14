@@ -1,19 +1,6 @@
 // Patient list table with colored appointment-status badges.
-
-const STATUS_STYLES = {
-  Scheduled: 'bg-blue-100 text-blue-700',
-  Completed: 'bg-green-100 text-green-700',
-  Cancelled: 'bg-red-100 text-red-700',
-}
-
-function StatusBadge({ status }) {
-  const style = STATUS_STYLES[status] || 'bg-slate-100 text-slate-600'
-  return (
-    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${style}`}>
-      {status}
-    </span>
-  )
-}
+import { Link } from 'react-router-dom'
+import StatusBadge from './StatusBadge'
 
 export default function PatientTable({ patients, onEdit, onDelete }) {
   const showActions = Boolean(onEdit || onDelete)
@@ -51,8 +38,13 @@ export default function PatientTable({ patients, onEdit, onDelete }) {
           ) : (
             patients.map((p) => (
               <tr key={p.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-medium text-slate-800">
-                  {p.firstName} {p.lastName}
+                <td className="px-4 py-3 font-medium">
+                  <Link
+                    to={`/patients/${p.id}`}
+                    className="text-brand-700 hover:text-brand-600 hover:underline"
+                  >
+                    {p.firstName} {p.lastName}
+                  </Link>
                 </td>
                 <td className="px-4 py-3 text-slate-600">{p.age ?? '—'}</td>
                 <td className="px-4 py-3 text-slate-600">{p.condition || '—'}</td>
