@@ -19,7 +19,7 @@ services:
     plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    healthCheckPath: /api/dashboard
+    healthCheckPath: /api/health
     envVars:
       - key: DB_HOST
         fromDatabase:
@@ -49,9 +49,10 @@ services:
   - type: web
     name: caretrack-frontend
     runtime: static
-    buildCommand: npm ci && npm run build
-    staticPublishPath: ./dist
-    rootDir: frontend
+    # Explicit repo-root-relative paths (no rootDir) so the built dist/ — including
+    # its CSS in dist/assets — is published correctly.
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
     envVars:
       # Backend host (no scheme); api.js prepends https://. Auto-resolves the real URL.
       - key: VITE_API_URL
