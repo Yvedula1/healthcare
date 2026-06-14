@@ -3,6 +3,7 @@ package com.yasaswini.caretrack.service;
 import com.yasaswini.caretrack.dto.PatientRequest;
 import com.yasaswini.caretrack.dto.PatientResponse;
 import com.yasaswini.caretrack.entity.Patient;
+import com.yasaswini.caretrack.exception.DuplicateResourceException;
 import com.yasaswini.caretrack.exception.ResourceNotFoundException;
 import com.yasaswini.caretrack.repository.PatientRepository;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class PatientService {
 
     @Transactional
     public PatientResponse createPatient(PatientRequest request) {
+        ensureEmailAvailable(request.getEmail(), null);
         Patient patient = new Patient();
         applyRequest(patient, request);
         return toResponse(patientRepository.save(patient));
@@ -42,6 +44,7 @@ public class PatientService {
     @Transactional
     public PatientResponse updatePatient(Long id, PatientRequest request) {
         Patient patient = findPatientOrThrow(id);
+        ensureEmailAvailable(request.getEmail(), id);
         applyRequest(patient, request);
         return toResponse(patientRepository.save(patient));
     }
@@ -50,6 +53,18 @@ public class PatientService {
     public void deletePatient(Long id) {
         Patient patient = findPatientOrThrow(id);
         patientRepository.delete(patient);
+    }
+
+    /**
+     * Rejects an email already used by a different patient. {@code currentId} is the
+     * id being updated (null on create) so a patient keeping its own email is allowed.
+     */
+    private void ensureEmailAvailable(String email, Long currentId) {
+        patientRepository.findByEmailIgnoreCase(email)
+                .filter(existing -> !existing.getId().equals(currentId))
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException("A patient with email '" + email + "' already exists");
+                });
     }
 
     private Patient findPatientOrThrow(Long id) {
